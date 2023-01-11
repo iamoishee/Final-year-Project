@@ -1,0 +1,101 @@
+#include <Wire.h> // Library for I2C communication
+#include <LiquidCrystal_I2C.h> // Library for LCD
+#include <DHT.h>
+#include <DHT_U.h>
+
+#define DHTPIN 3
+
+#define DHTTYPE DHT11
+
+DHT dht(DHTPIN,  DHTTYPE);
+LiquidCrystal_I2C lcd = LiquidCrystal_I2C(0x3F, 16, 2); // Change to (0x27,16,2) for 16x2 LCD.my address is (0x3F)
+
+int trigPin = A0;
+int echoPin = A1;
+
+long distance;
+long distanceInch;
+long duration;
+
+void setup(){
+dht.begin();
+
+Serial.begin(9600);
+pinMode(2, INPUT);   
+ //lcd.init();
+ //lcd.backlight();
+ pinMode(trigPin, OUTPUT);
+ pinMode(echoPin, INPUT);
+
+ //lcd.setCursor(0,0);
+ //lcd.print("   WELCOME TO");
+ //lcd.setCursor(0,1);
+ //lcd.print("  MKINVENTIONS");
+// delay(2000);
+}
+
+void loop() {
+  delay(2000);
+
+  float h=dht.readHumidity();
+
+  float t=dht.readTemperature();
+
+
+
+  if(isnan(h) || isnan(t) ){
+    Serial.println("failed");
+    return;
+  }
+  // put your main code here, to run repeatedly:
+   Serial.print("humidity: ");
+   Serial.print(h);
+   Serial.print("%\t");
+   Serial.print("temperature: ");
+   Serial.print(t);
+   Serial.print("C ");
+   Serial.println();
+
+  int motion=digitalRead(2);
+  if(motion){
+    Serial.println("Motion detected");
+  }
+  else
+  {
+    Serial.println("nothing moves");
+  }  
+  digitalWrite(trigPin, LOW);
+  delay(100);
+  digitalWrite(trigPin, HIGH);
+  delay(100);
+  digitalWrite(trigPin, LOW);
+  duration = pulseIn(echoPin, HIGH);
+  distance = duration*0.034/2;
+  distanceInch = duration*0.0133/2;
+  Serial.print("Distance: ");
+  Serial.print(distance);
+  Serial.println();
+// ULTRASONIC();
+// lcd.clear();
+ //lcd.setCursor(0,0);
+// lcd.print("DISTANCE CM:");
+ //lcd.print(distance); 
+ //lcd.setCursor(0,1);
+ //lcd.print("DISTANCE INCH:");
+ //lcd.print(distanceInch); 
+
+// lcd.setCursor(0,1);   
+// lcd.print("DISTANCE MM:");
+// lcd.print(distanceInch); 
+}
+
+void ULTRASONIC(){
+  digitalWrite(trigPin, LOW);
+  delay(100);
+  digitalWrite(trigPin, HIGH);
+  delay(100);
+  digitalWrite(trigPin, LOW);
+  duration = pulseIn(echoPin, HIGH);
+  distance = duration*0.034/2;
+  distanceInch = duration*0.0133/2;
+}
